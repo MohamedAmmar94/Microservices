@@ -6,13 +6,13 @@ use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 
-#[Signature('app:consume-order-created')]
+#[Signature('app:listen_orders')]
 #[Description('Command description')]
 class ConsumeOrderCreated extends Command {
     /**
      * Execute the console command.
      */
-    protected $signature = 'rabbitmq:consume-order-created';
+    protected $signature = 'app:listen_orders';
 
     protected $description = 'Consume order.created messages';
 

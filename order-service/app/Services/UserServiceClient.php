@@ -3,23 +3,19 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
 
-class UserServiceClient
-{
+class UserServiceClient {
     /**
      * Create a new class instance.
      */
-    public function __construct()
-    {
+    public function __construct() {
         //
     }
-    public function findUser(int $userId): ?array
-    {
-        // dd(config('services.user_service.url') . "/api/users/{$userId}");
-        $response = Http::timeout(3)
+    public function findUser(int $userId): ?array {
+        $response = Http::timeout(9)
             ->get(
                 config('services.user_service.url') . "/api/users/{$userId}"
             );
-
+        // dd($response);
         if ($response->status() === 404) {
             return null;
         }

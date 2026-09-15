@@ -31,7 +31,7 @@ class RabbitMQService {
             json_encode($data),
             [
                 'content_type'  => 'application/json',
-                'delivery_mode' => 2,
+                'delivery_mode' => 2, // make message persistent not lost in case of server restart, is stored on disk until consumed
             ]
         );
 // 1. Create Exchange
@@ -78,5 +78,47 @@ class RabbitMQService {
         $channel->close();
         $connection->close();
     }
+    public function setup(
+        string $exchange,
+        string $queue,
+        string $routingKey
+    ): void {
+        $connection = new AMQPStreamConnection(
+            config('rabbitmq.host'),
+            config('rabbitmq.port'),
+            config('rabbitmq.user'),
+            config('rabbitmq.password'),
+            config('rabbitmq.vhost')
+        );
 
+        $channel = $connection->channel();
+
+        // Exchange
+        $channel->exchange_declare(
+            $exchange,
+            'direct',
+            false,
+            true,
+            false
+        );
+
+        // Queue
+        $channel->queue_declare(
+            $queue,
+            false,
+            true,
+            false,
+            false
+        );
+
+        // Binding
+        $channel->queue_bind(
+            $queue,
+            $exchange,
+            $routingKey
+        );
+
+        $channel->close();
+        $connection->close();
+    }
 }
