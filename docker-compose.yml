@@ -1,0 +1,89 @@
+services:
+  user-service:
+    build:
+      context: ./user-service
+      dockerfile: Docker/Dockerfile
+    container_name: user-service
+    ports:
+      - "8001:80"
+    volumes:
+      - ./user-service:/var/www/html
+    depends_on:
+      - users-db
+    networks:
+      - microservices
+
+  users-db:
+    image: mysql:8.0
+    container_name: users-db
+    environment:
+      MYSQL_DATABASE: users_db
+      MYSQL_ROOT_PASSWORD: root
+      # MYSQL_PASSWORD: root
+      # MYSQL_USER: root
+    ports:
+      - "3307:3306"
+    volumes:
+      - users-db-data:/var/lib/mysql
+    networks:
+      - microservices
+
+  order-service:
+    build:
+      context: ./order-service
+      dockerfile: Docker/Dockerfile
+    container_name: order-service
+    ports:
+      - "8002:80"
+    volumes:
+      - ./order-service:/var/www/html
+    depends_on:
+      - orders-db
+    networks:
+      - microservices
+
+  orders-db:
+    image: mysql:8.0
+    container_name: orders-db
+    environment:
+      MYSQL_DATABASE: orders_db
+      MYSQL_ROOT_PASSWORD: root
+      # MYSQL_PASSWORD: root
+      # MYSQL_USER: root
+    ports:
+      - "3308:3306"
+    volumes:
+      - orders-db-data:/var/lib/mysql
+    networks:
+      - microservices
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: phpmyadmin
+    environment:
+      PMA_HOSTS: users-db,orders-db
+    ports:
+      - "8080:80"
+    depends_on:
+      - users-db
+      - orders-db
+    networks:
+      - microservices
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - microservices
+
+
+networks:
+  microservices:
+
+volumes:
+  users-db-data:
+  orders-db-data:
